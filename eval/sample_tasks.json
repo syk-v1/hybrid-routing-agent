@@ -1,0 +1,86 @@
+[
+  {
+    "id": "math_001",
+    "query": "12 + 47",
+    "expected": "59",
+    "type": "math_simple",
+    "difficulty": "easy"
+  },
+  {
+    "id": "math_002",
+    "query": "What is 15% of 240?",
+    "expected": "36",
+    "type": "math_simple",
+    "difficulty": "easy"
+  },
+  {
+    "id": "factual_001",
+    "query": "What is the capital of France?",
+    "expected": "Paris",
+    "type": "factual",
+    "difficulty": "easy"
+  },
+  {
+    "id": "factual_002",
+    "query": "Who is the author of Hamlet?",
+    "expected": "William Shakespeare",
+    "type": "factual",
+    "difficulty": "easy"
+  },
+  {
+    "id": "factual_003",
+    "query": "What does HTTP stand for?",
+    "expected": "HyperText Transfer Protocol",
+    "type": "factual",
+    "difficulty": "easy"
+  },
+  {
+    "id": "convert_001",
+    "query": "Convert 100 Celsius to Fahrenheit.",
+    "expected": "212",
+    "type": "conversion",
+    "difficulty": "easy"
+  },
+  {
+    "id": "reasoning_001",
+    "query": "If all roses are flowers and some flowers fade quickly, can we conclude that some roses fade quickly?",
+    "expected": "no",
+    "type": "reasoning",
+    "difficulty": "medium"
+  },
+  {
+    "id": "reasoning_002",
+    "query": "A bat and ball together cost $1.10. The bat costs $1 more than the ball. How much does the ball cost?",
+    "expected": "5 cents",
+    "type": "math_reasoning",
+    "difficulty": "medium"
+  },
+  {
+    "id": "code_001",
+    "query": "Write a Python function that returns the factorial of n using recursion.",
+    "expected_contains": ["def ", "return", "factorial"],
+    "type": "code",
+    "difficulty": "medium"
+  },
+  {
+    "id": "code_002",
+    "query": "Write a Python function to check if a string is a palindrome.",
+    "expected_contains": ["def ", "return", "[::-1]"],
+    "type": "code",
+    "difficulty": "medium"
+  },
+  {
+    "id": "complex_001",
+    "query": "Explain the difference between supervised and unsupervised machine learning, and give one example of each.",
+    "expected_contains": ["supervised", "unsupervised", "example"],
+    "type": "explanation",
+    "difficulty": "hard"
+  },
+  {
+    "id": "complex_002",
+    "query": "Write a Python class implementing a stack with push, pop, and peek methods, with O(1) time complexity for all operations.",
+    "expected_contains": ["class ", "push", "pop", "peek"],
+    "type": "code",
+    "difficulty": "hard"
+  }
+]

@@ -10,14 +10,13 @@ LOCAL_TIMEOUT = int(os.getenv("LOCAL_TIMEOUT", "60"))
 
 # --- Remote model (Fireworks AI) ---
 FIREWORKS_API_KEY = os.getenv("FIREWORKS_API_KEY", "")
-# Will be updated once models are revealed at kickoff
 REMOTE_MODEL_FAST = os.getenv(
     "REMOTE_MODEL_FAST",
-    "accounts/fireworks/models/llama-v3p1-8b-instruct",
+    "accounts/fireworks/models/glm-5p1",
 )
 REMOTE_MODEL_STRONG = os.getenv(
     "REMOTE_MODEL_STRONG",
-    "accounts/fireworks/models/llama-v3p1-70b-instruct",
+    "accounts/fireworks/models/gpt-oss-120b",
 )
 REMOTE_MAX_TOKENS = int(os.getenv("REMOTE_MAX_TOKENS", "1024"))
 

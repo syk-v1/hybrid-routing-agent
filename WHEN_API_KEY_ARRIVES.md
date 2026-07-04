@@ -1,7 +1,15 @@
-# When Your Fireworks API Key Arrives
+# Fireworks AI Setup Notes
 
-Your Fireworks AI account is provisioned but the API key isn't ready yet.
-Once you get it, do the following:
+API key is active. Available hackathon models (as of 2026-07-04):
+- `accounts/fireworks/models/glm-5p1` ← REMOTE_MODEL_FAST
+- `accounts/fireworks/models/glm-5p2`
+- `accounts/fireworks/models/gpt-oss-120b` ← REMOTE_MODEL_STRONG
+- `accounts/fireworks/models/deepseek-v4-pro`
+- `accounts/fireworks/models/kimi-k2p5`
+- `accounts/fireworks/models/kimi-k2p6`
+- `accounts/fireworks/models/flux-1-schnell-fp8` (image model, skip)
+
+---
 
 ## Step 1 — Add the key to .env
 

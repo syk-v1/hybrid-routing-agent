@@ -1,5 +1,7 @@
 # hybrid-routing-agent
 
+![Hybrid Routing Agent — every query takes the cheapest path that still gets the answer right](assets/cover.png)
+
 Routes each query to the cheapest model that can answer it correctly — local first, Fireworks AI as fallback. Built for the AMD Developer Hackathon (Track 1: General-Purpose AI Agent).
 
 ## How it works

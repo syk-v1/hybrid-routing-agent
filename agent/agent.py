@@ -76,7 +76,22 @@ def answer(query: str, verbose: bool = False) -> AgentResult:
 
     # ----------------------------------------------------------------- remote
     if decision.route == "remote":
-        return _run_remote(query, decision, "remote")
+        result = _run_remote(query, decision, "remote")
+        if result.error and _ensure_local():
+            # A local attempt is free and beats an empty answer if remote is down.
+            _log(f"remote failed ({result.error}) -> trying local as last resort")
+            res = local_model.run(query)
+            if res.success and res.text:
+                return AgentResult(
+                    answer=res.text,
+                    route_taken="remote->local(fallback)",
+                    complexity=decision.complexity,
+                    router_reason=decision.reason,
+                    local_latency=res.latency,
+                    remote_latency=result.remote_latency,
+                    confidence=res.confidence,
+                )
+        return result
 
     # ---------------------------------------------------------------- cascade
     if not _ensure_local():
@@ -104,6 +119,18 @@ def answer(query: str, verbose: bool = False) -> AgentResult:
     _log("cascade -> escalating to remote")
     result = _run_remote(query, decision, "cascade->remote")
     result.local_latency = local_res.latency
+    if result.error and local_res.text:
+        # Remote failed — the low-confidence local answer still beats an empty one.
+        _log(f"remote failed ({result.error}) -> keeping local answer as fallback")
+        return AgentResult(
+            answer=local_res.text,
+            route_taken="cascade->local(remote_failed)",
+            complexity=decision.complexity,
+            router_reason=decision.reason,
+            local_latency=local_res.latency,
+            remote_latency=result.remote_latency,
+            confidence=local_res.confidence,
+        )
     return result
 
 

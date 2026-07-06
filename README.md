@@ -22,9 +22,9 @@ The harness injects `FIREWORKS_API_KEY`, `FIREWORKS_BASE_URL`, and `ALLOWED_MODE
 # build
 docker build -t hybrid-routing-agent .
 
-# run locally against a sample input
+# run locally against a sample input (already in the {task_id, prompt} shape)
 mkdir -p /tmp/hra/input /tmp/hra/output
-cp eval/sample_tasks.json /tmp/hra/input/tasks.json   # adapt to the {task_id, prompt} shape
+cp eval/sample_input/tasks.json /tmp/hra/input/tasks.json
 docker run --rm \
   -e FIREWORKS_API_KEY=... \
   -e FIREWORKS_BASE_URL=https://api.fireworks.ai/inference/v1 \
@@ -38,6 +38,10 @@ cat /tmp/hra/output/results.json
 docker tag hybrid-routing-agent ghcr.io/<org>/hybrid-routing-agent:latest
 docker push ghcr.io/<org>/hybrid-routing-agent:latest
 ```
+
+### CI
+
+`.github/workflows/docker-build.yml` builds the image, checks it against the 10GB size cap, and smoke-tests it against `eval/sample_input/tasks.json` on every push (using a dummy Fireworks key, so only the local-inference path and the JSON contract are actually exercised). Trigger it manually with the `push` input set to publish the image to `ghcr.io/<this-repo>` after a green run.
 
 ## Results
 

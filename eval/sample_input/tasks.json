@@ -1,0 +1,10 @@
+[
+  { "task_id": "smoke_math", "prompt": "What is 12 + 47?" },
+  { "task_id": "smoke_factual", "prompt": "What is the capital of France?" },
+  { "task_id": "smoke_sentiment", "prompt": "Classify the sentiment of this review and justify your answer: I loved this movie!" },
+  { "task_id": "smoke_ner", "prompt": "Extract named entities as JSON: Barack Obama visited Paris in 2015." },
+  { "task_id": "smoke_summary", "prompt": "Summarise the following text in one sentence: The quick brown fox jumps over the lazy dog many times each day." },
+  { "task_id": "smoke_code_gen", "prompt": "Write a Python function that returns the factorial of n using recursion." },
+  { "task_id": "smoke_code_debug", "prompt": "Find and fix the bug: def add(a, b):\n    return a - b" },
+  { "task_id": "smoke_logic", "prompt": "Alice is taller than Bob. Bob is taller than Carol. Who is the shortest?" }
+]

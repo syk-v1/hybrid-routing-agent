@@ -1,0 +1,88 @@
+name: Docker build, smoke test, and optional publish
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+    inputs:
+      push:
+        description: "Push the image to GHCR after a successful smoke test"
+        type: boolean
+        default: false
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
+  MAX_IMAGE_SIZE_BYTES: 10737418240 # 10GB, per the submission rules
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t hybrid-routing-agent:ci .
+
+      - name: Check image size against the 10GB submission cap
+        run: |
+          # docker image inspect reports uncompressed size, which is >= the compressed
+          # size the rules cap at 10GB — this is a conservative (stricter) proxy check.
+          size=$(docker image inspect hybrid-routing-agent:ci --format='{{.Size}}')
+          echo "Image size (uncompressed): $size bytes ($((size / 1024 / 1024)) MiB)"
+          if [ "$size" -gt "$MAX_IMAGE_SIZE_BYTES" ]; then
+            echo "::error::Image size ($size bytes) exceeds the 10GB submission cap"
+            exit 1
+          fi
+
+      - name: Smoke test — run the container against sample tasks
+        run: |
+          mkdir -p /tmp/hra/input /tmp/hra/output
+          cp eval/sample_input/tasks.json /tmp/hra/input/tasks.json
+          docker run --rm \
+            -e FIREWORKS_API_KEY=dummy-key-for-ci-smoke-test \
+            -e FIREWORKS_BASE_URL=https://api.fireworks.ai/inference/v1 \
+            -e ALLOWED_MODELS="accounts/fireworks/models/dummy-fast,accounts/fireworks/models/dummy-strong-70b" \
+            -v /tmp/hra/input:/input:ro \
+            -v /tmp/hra/output:/output \
+            hybrid-routing-agent:ci
+          echo "--- results.json ---"
+          cat /tmp/hra/output/results.json
+
+      - name: Validate results.json shape
+        run: |
+          python3 - <<'EOF'
+          import json
+
+          with open("/tmp/hra/input/tasks.json") as f:
+              tasks = json.load(f)
+          with open("/tmp/hra/output/results.json") as f:
+              results = json.load(f)
+
+          expected_ids = {t["task_id"] for t in tasks}
+          got_ids = {r["task_id"] for r in results}
+          assert expected_ids == got_ids, f"task_id mismatch: expected {expected_ids}, got {got_ids}"
+          for r in results:
+              assert isinstance(r["answer"], str), f"answer for {r['task_id']} is not a string"
+          print(f"OK: {len(results)} results, all task_ids present, all answers are strings")
+          EOF
+
+      - name: Log in to GHCR
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.push }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag and push to GHCR
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.push }}
+        run: |
+          docker tag hybrid-routing-agent:ci "$IMAGE_NAME:latest"
+          docker tag hybrid-routing-agent:ci "$IMAGE_NAME:${{ github.sha }}"
+          docker push "$IMAGE_NAME:latest"
+          docker push "$IMAGE_NAME:${{ github.sha }}"
+          echo "Pushed $IMAGE_NAME:latest and $IMAGE_NAME:${{ github.sha }}"

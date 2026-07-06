@@ -33,3 +33,4 @@ logs/
 *.bin
 *.safetensors
 models/
+_video_build/

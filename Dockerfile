@@ -1,8 +1,9 @@
 FROM python:3.11-slim
 
 # --- system deps needed only to install Ollama and poll its HTTP API ---
+# zstd is required by the Ollama install script to extract its release archive.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && apt-get install -y --no-install-recommends curl ca-certificates zstd \
     && rm -rf /var/lib/apt/lists/*
 
 # --- install Ollama itself (network access at build time is fine — we control build+push) ---

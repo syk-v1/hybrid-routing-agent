@@ -1,7 +1,9 @@
 """
-Competition entry point.
+Manual single-query dev/debug tool. NOT the competition entry point —
+the Docker submission runs batch_runner.py via docker-entrypoint.sh, which
+reads /input/tasks.json and writes /output/results.json.
 
-The judging harness calls this script once per task via:
+Use this script for quick local testing of a single query:
     python main.py "<query>"
 
 It prints ONLY the answer to stdout (no extra text).

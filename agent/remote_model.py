@@ -1,6 +1,9 @@
 """
 Remote model inference via Fireworks AI.
 Every token here is counted toward the competition score — use sparingly.
+
+All calls MUST go through FIREWORKS_BASE_URL — the harness's metering/judging
+proxy. Calls that bypass it are not recorded and score zero.
 """
 
 import os
@@ -9,9 +12,11 @@ from dataclasses import dataclass, field
 
 from agent.config import (
     FIREWORKS_API_KEY,
+    FIREWORKS_BASE_URL,
     REMOTE_MODEL_FAST,
     REMOTE_MODEL_STRONG,
     REMOTE_MAX_TOKENS,
+    REMOTE_TIMEOUT,
 )
 
 
@@ -68,7 +73,7 @@ def run(
         )
 
     model = REMOTE_MODEL_STRONG if use_strong_model else REMOTE_MODEL_FAST
-    client = Fireworks(api_key=FIREWORKS_API_KEY)
+    client = Fireworks(api_key=FIREWORKS_API_KEY, base_url=FIREWORKS_BASE_URL, timeout=REMOTE_TIMEOUT)
 
     t0 = time.time()
     try:

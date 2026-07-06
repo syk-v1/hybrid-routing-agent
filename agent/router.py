@@ -63,6 +63,33 @@ _LONG_OUTPUT_KEYWORDS = [
     "detailed explanation", "comprehensive",
 ]
 
+_SENTIMENT_KEYWORDS = [
+    "sentiment", "positive or negative", "positive, negative, or neutral",
+    "classify the sentiment", "is this review positive", "tone of this",
+    "emotion expressed", "how does this review sound",
+]
+
+_NER_KEYWORDS = [
+    "named entities", "extract entities", "entity extraction",
+    "as json", "in json format", "return json", "labelled json", "labeled json",
+    "output json", "extract the following fields",
+]
+_NER_RE = re.compile(
+    r"\bextract\b.{0,60}\b(entit(y|ies)|names?|organi[sz]ations?|people|dates?|locations?)\b",
+    re.IGNORECASE,
+)
+
+_SUMMARY_FORMAT_KEYWORDS = [
+    "summarize", "summarise", "summary", "tl;dr", "in one sentence",
+    "in exactly", "in no more than", "word limit", "in 3 bullet",
+    "in three bullet", "bullet points", "one paragraph", "condense",
+]
+_FORMAT_CONSTRAINT_RE = re.compile(
+    r"\b(in\s+(\d+|one|two|three|a|a single)\s+(words?|sentences?|bullets?|paragraphs?)"
+    r"|no more than|exactly \d+|word limit|character limit)\b",
+    re.IGNORECASE,
+)
+
 
 # ---------------------------------------------------------------------------
 # Dataclass for routing result
@@ -161,6 +188,28 @@ def _score(query: str) -> tuple[float, list[str]]:
     if sub_q >= 3:
         signals.append(f"multi_question({sub_q})")
         score += 0.10
+
+    # 10. Sentiment classification with justification — tiny local model tends to be
+    # shallow/inconsistent here; nudge toward cascade/remote.
+    for kw in _SENTIMENT_KEYWORDS:
+        if kw in q:
+            signals.append(f"sentiment:{kw!r}")
+            score += 0.20
+            break
+
+    # 11. NER / structured JSON extraction — strict-format output is risky for phi3:mini.
+    _ner_hit = next((kw for kw in _NER_KEYWORDS if kw in q), None) or (_NER_RE.search(q) and "regex")
+    if _ner_hit:
+        signals.append(f"ner_json:{_ner_hit!r}")
+        score += 0.30
+
+    # 12. Format-constrained summarisation (specific length/format requested).
+    for kw in _SUMMARY_FORMAT_KEYWORDS:
+        if kw in q:
+            bump = 0.18 if _FORMAT_CONSTRAINT_RE.search(q) else 0.10
+            signals.append(f"summary_format:{kw!r}")
+            score += bump
+            break
 
     return min(score, 1.0), signals
 

@@ -4,6 +4,8 @@
 __pycache__
 *.pyc
 assets
+demo
+.streamlit
 eval
 demo.py
 dryrun_test.py
